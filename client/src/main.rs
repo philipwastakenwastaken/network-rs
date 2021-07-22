@@ -12,6 +12,7 @@ fn main() -> std::io::Result<()> {
 
         let mut buffer = String::new();
         stdin.read_line(&mut buffer)?;
+        buffer.pop();
         println!("Sending message {:?}", buffer);
 
         let pub_key = fs::read("./server_key.pem").unwrap();

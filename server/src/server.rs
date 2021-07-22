@@ -43,7 +43,11 @@ impl Server {
                 let _ = rsa_private_key
                     .private_decrypt(&buf, &mut decrypted_message, Padding::PKCS1)
                     .unwrap();
-                println!("Msg: {:?}", str::from_utf8(&decrypted_message[0..size]));
+
+                let msg = str::from_utf8(&decrypted_message[0..size]).unwrap().to_string();
+                let trimmed_msg = msg.trim_matches(char::from(0));
+
+                println!("Msg: {:?}", trimmed_msg);
             }
             Err(_) => {
                 println!("Error occurred, shutting down");
