@@ -21,8 +21,8 @@ impl Client {
         }
     }
 
-    pub fn write_message(mut self, msg: String) -> std::io::Result<()> {
-        self.stream.write(msg.as_bytes())?;
+    pub fn write_message(mut self, msg: &Vec<u8>) -> std::io::Result<()> {
+        self.stream.write(msg)?;
         Ok(())
     }
 
