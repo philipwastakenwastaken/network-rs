@@ -5,8 +5,6 @@ use openssl::rsa::{Padding, Rsa};
 use std::fs;
 use std::str;
 
-pub const LISTEN_ADDR: &str = "127.0.0.1:3333";
-
 pub struct Server {
     listener: TcpListener,
 }
