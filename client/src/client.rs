@@ -18,9 +18,13 @@ impl Client {
         println!("Connected!");
 
         Ok(Client {
-            stream: stream,
+            stream,
             pk: RsaPublicKey::from_pem(pk_pem_path),
         })
+    }
+
+    pub fn handshake(&self) {
+        todo!()
     }
 
     pub fn write_message(mut self, msg: &[u8]) -> std::io::Result<()> {

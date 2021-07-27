@@ -1,3 +1,5 @@
+use anyhow::Result;
+
 pub trait PrivateKey {
     fn decrypt(&self, msg: &[u8]) -> Vec<u8>;
 
@@ -6,4 +8,10 @@ pub trait PrivateKey {
 
 pub trait PublicKey {
     fn encrypt(&self, msg: &[u8]) -> Vec<u8>;
+}
+
+pub trait SymmetricKey {
+    fn encrypt(&self, msg: &[u8]) -> Result<Vec<u8>>;
+
+    fn decrypt(&self, msg: &[u8]) -> Result<Vec<u8>>;
 }

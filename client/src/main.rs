@@ -1,7 +1,7 @@
 mod client;
 
-use client::{Client};
-use std::io::{self};
+use client::Client;
+use std::io;
 use common::constants::LISTEN_ADDR;
 
 fn main() -> std::io::Result<()> {

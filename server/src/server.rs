@@ -22,7 +22,11 @@ impl Server {
         }
     }
 
-    fn handle_connection(&self, mut stream: TcpStream) {
+    pub fn handshake(&self, mut _stream: &TcpStream) {
+        todo!()
+    }
+
+    fn handle_connection(&self, mut stream: &TcpStream) {
         const BUF_LEN: usize = 512;
         let mut buf = [0 as u8; BUF_LEN];
 
@@ -50,7 +54,12 @@ impl Server {
             match stream {
                 Ok(stream) => {
                     println!("Received connection: {}", stream.peer_addr().unwrap());
-                    self.handle_connection(stream);
+
+                    // Do initial setup to secure connection
+                    self.handshake(&stream);
+
+                    // Send actual payload
+                    self.handle_connection(&stream);
                     println!("Connection ended");
                 }
 
