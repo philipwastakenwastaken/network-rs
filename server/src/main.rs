@@ -1,6 +1,6 @@
 mod server;
 
-use server::{Server};
+use server::Server;
 use common::transaction::Transaction;
 use common::constants::LISTEN_ADDR;
 
@@ -13,6 +13,6 @@ fn main() {
     println!("Amount: {:?}", _tx.amount());
 
 
-    let server = Server::bind(LISTEN_ADDR);
+    let server = Server::bind(LISTEN_ADDR, "./private.pem");
     server.listen();
 }

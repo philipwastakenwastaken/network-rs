@@ -1,34 +1,30 @@
 use std::io::Read;
 use std::net::{Shutdown, TcpListener, TcpStream};
 //use std::thread;
-use openssl::rsa::{Padding, Rsa};
-use std::fs;
 use std::str;
+
+use common::keys::key::PrivateKey;
+use common::keys::rsa::RsaPrivateKey;
 
 pub struct Server {
     listener: TcpListener,
+    sk: RsaPrivateKey,
 }
 
 impl Server {
-    pub fn bind(addr: &str) -> Server {
+    pub fn bind(addr: &str, sk_pem_path: &str) -> Server {
         let listener = TcpListener::bind(addr);
         assert!(listener.is_ok(), "Could not bind to address");
         println!("Connected to {}", addr);
         Server {
             listener: listener.unwrap(),
+            sk: RsaPrivateKey::from_pem(sk_pem_path),
         }
     }
 
     fn handle_connection(&self, mut stream: TcpStream) {
         const BUF_LEN: usize = 512;
         let mut buf = [0 as u8; BUF_LEN];
-
-        let sk = fs::read("./private.pem").unwrap();
-        println!("Read private key...");
-
-        let rsa_private_key = Rsa::private_key_from_pem(&sk).unwrap();
-
-        let mut decrypted_message = [0 as u8; BUF_LEN];
 
         println!("Reading messages..");
         match stream.read(&mut buf) {
@@ -38,14 +34,9 @@ impl Server {
                     size,
                     str::from_utf8(&buf[0..size])
                 );
-                let _ = rsa_private_key
-                    .private_decrypt(&buf, &mut decrypted_message, Padding::PKCS1)
-                    .unwrap();
 
-                let msg = str::from_utf8(&decrypted_message[0..size]).unwrap().to_string();
-                let trimmed_msg = msg.trim_matches(char::from(0));
-
-                println!("Msg: {:?}", trimmed_msg);
+                let decrypted_msg = self.sk.decrypt(&buf);
+                println!("Msg: {:?}", str::from_utf8(&decrypted_msg));
             }
             Err(_) => {
                 println!("Error occurred, shutting down");
