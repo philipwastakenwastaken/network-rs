@@ -13,6 +13,6 @@ fn main() {
     println!("Amount: {:?}", _tx.amount());
 
 
-    let server = Server::bind(LISTEN_ADDR, "./private.pem");
+    let server = Server::bind(LISTEN_ADDR, "./private.pem", "./server_key.pem");
     server.listen();
 }

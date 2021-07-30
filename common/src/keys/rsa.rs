@@ -54,6 +54,10 @@ impl RsaPrivateKey {
     fn new(key: Rsa<Private>) -> Self {
         RsaPrivateKey { sk: key }
     }
+
+    pub fn to_pem(&self) -> Vec<u8> {
+        self.sk.private_key_to_pem().unwrap()
+    }
 }
 
 impl PrivateKey for RsaPrivateKey {
@@ -82,8 +86,19 @@ impl RsaPublicKey {
         }
     }
 
+    pub fn from_pem_bin_data(pem: &[u8]) -> Self {
+
+        RsaPublicKey {
+            pk: Rsa::public_key_from_pem(&pem).unwrap(),
+        }
+    }
+
     fn new(key: Rsa<Public>) -> Self {
         RsaPublicKey { pk: key }
+    }
+
+    pub fn to_pem(&self) -> Vec<u8> {
+        self.pk.public_key_to_pem().unwrap()
     }
 }
 
