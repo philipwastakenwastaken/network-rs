@@ -6,6 +6,7 @@ use std::str;
 use common::keys::key::{PrivateKey, PublicKey, SymmetricKey};
 use common::keys::rsa::{RsaPrivateKey, RsaPublicKey};
 use common::keys::aes::AesKey;
+use common::transaction::{SignedTransaction, Transaction};
 
 
 pub struct Server {
@@ -67,14 +68,26 @@ impl Server {
                     str::from_utf8(&buf[0..size])
                 );
 
-                let decrypted_msg = aes_key.decrypt(&buf[0..size]).unwrap();
-                println!("Msg: {:?}", str::from_utf8(&decrypted_msg));
+                let tx = self.verify_transaction(&buf[0..size], aes_key);
+                println!("tx from {:?}", tx.from);
+                println!("tx to {:?}", tx.to);
+                println!("tx amount {:?}", tx.amount);
             }
             Err(_) => {
                 println!("Error occurred, shutting down");
                 stream.shutdown(Shutdown::Both).unwrap();
             }
         }
+    }
+
+    fn verify_transaction(&self, msg: &[u8], aes_key: &AesKey) -> Transaction {
+        let decrypted_msg = aes_key.decrypt(msg).unwrap();
+        let stx: SignedTransaction = bincode::deserialize(&decrypted_msg).unwrap();
+
+        let found_tx_id = stx.tx.tx_id();
+        assert_eq!(found_tx_id, stx.tx_id);
+
+        stx.tx
     }
 
     pub fn listen(self) {

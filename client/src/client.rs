@@ -7,6 +7,7 @@ use anyhow::Result;
 use common::keys::key::{PublicKey, PrivateKey, SymmetricKey};
 use common::keys::rsa::{RsaPublicKey, RsaPrivateKey};
 use common::keys::aes::AesKey;
+use common::transaction::{SignedTransaction, Transaction};
 
 
 pub struct Client {
@@ -50,9 +51,19 @@ impl Client {
         aes_key
     }
 
+    // Send a series of bytes through the verified channel using AES encryption.
     pub fn write_message(&mut self, msg: &[u8], aes_key: &AesKey) -> std::io::Result<()> {
         let encrypted_msg = aes_key.encrypt(msg).unwrap();
         self.stream.write(&encrypted_msg)?;
+        Ok(())
+    }
+
+    pub fn send_transaction(&mut self, tx: Transaction, aes_key: &AesKey) -> std::io::Result<()> {
+        let stx = SignedTransaction::new(tx);
+        let de_stx = bincode::serialize(&stx).unwrap();
+
+        let encrypted_payload = aes_key.encrypt(&de_stx).unwrap();
+        self.stream.write(&encrypted_payload)?;
         Ok(())
     }
 }
