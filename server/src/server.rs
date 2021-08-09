@@ -89,7 +89,7 @@ impl Server {
                     let aes_key = self.receive_session_key(&mut stream);
                     debug_assert_eq!(aes_key.decrypt(&aes_key.encrypt("hi".as_bytes()).unwrap()).unwrap(), "hi".as_bytes());
 
-                    // Send actual payloa
+                    // Send actual payload
                     self.handle_connection(&stream, &aes_key);
                     println!("Connection ended");
                 }

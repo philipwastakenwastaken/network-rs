@@ -1,3 +1,7 @@
+use serde::{Serialize, Deserialize};
+use crate::keys::sha::{double_sha256, Sha256Hash};
+
+#[derive(Serialize, Deserialize)]
 pub struct Transaction {
     from: String,
     to: String,
@@ -25,6 +29,11 @@ impl Transaction {
 
     pub fn to(&self) -> &str {
         self.to.as_str()
+    }
+
+    pub fn tx_id(&self) -> Sha256Hash {
+        let tx_de = bincode::serialize(self).unwrap();
+        double_sha256(&tx_de)
     }
 
 }
