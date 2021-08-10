@@ -1,19 +1,18 @@
-use std::io::{Write, Read};
+use std::io::{Read, Write};
 use std::net::TcpStream;
 use std::str;
 
 use anyhow::Result;
 
-use common::keys::key::{PublicKey, PrivateKey, SymmetricKey};
-use common::keys::rsa::{RsaPublicKey, RsaPrivateKey};
 use common::keys::aes::AesKey;
+use common::keys::key::{PublicKey, SymmetricKey};
+use common::keys::rsa::{RsaPrivateKey, RsaPublicKey};
 use common::transaction::{SignedTransaction, Transaction};
-
 
 pub struct Client {
     stream: TcpStream,
     pk: RsaPublicKey,
-    sk: RsaPrivateKey
+    sk: RsaPrivateKey,
 }
 
 impl Client {
@@ -24,7 +23,7 @@ impl Client {
         Ok(Client {
             stream,
             pk: RsaPublicKey::from_pem(pk_pem_path),
-            sk: RsaPrivateKey::from_pem(sk_pem_path)
+            sk: RsaPrivateKey::from_pem(sk_pem_path),
         })
     }
 
@@ -52,17 +51,27 @@ impl Client {
     }
 
     // Send a series of bytes through the verified channel using AES encryption.
-    pub fn write_message(&mut self, msg: &[u8], aes_key: &AesKey) -> std::io::Result<()> {
-        let encrypted_msg = aes_key.encrypt(msg).unwrap();
+    pub fn write_message<KeyType>(&mut self, msg: &[u8], key: &KeyType) -> std::io::Result<()>
+    where
+        KeyType: SymmetricKey,
+    {
+        let encrypted_msg = key.encrypt(msg).unwrap();
         self.stream.write(&encrypted_msg)?;
         Ok(())
     }
 
-    pub fn send_transaction(&mut self, tx: Transaction, aes_key: &AesKey) -> std::io::Result<()> {
+    pub fn send_transaction<KeyType>(
+        &mut self,
+        tx: Transaction,
+        key: &KeyType,
+    ) -> std::io::Result<()>
+    where
+        KeyType: SymmetricKey,
+    {
         let stx = SignedTransaction::new(tx);
         let de_stx = bincode::serialize(&stx).unwrap();
 
-        let encrypted_payload = aes_key.encrypt(&de_stx).unwrap();
+        let encrypted_payload = key.encrypt(&de_stx).unwrap();
         self.stream.write(&encrypted_payload)?;
         Ok(())
     }

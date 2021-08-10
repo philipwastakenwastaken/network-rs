@@ -3,7 +3,7 @@ use std::net::{Shutdown, TcpListener, TcpStream};
 //use std::thread;
 use std::str;
 
-use common::keys::key::{PrivateKey, PublicKey, SymmetricKey};
+use common::keys::key::{PrivateKey, SymmetricKey};
 use common::keys::rsa::{RsaPrivateKey, RsaPublicKey};
 use common::keys::aes::AesKey;
 use common::transaction::{SignedTransaction, Transaction};
